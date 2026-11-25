@@ -1,0 +1,50 @@
+# Configuration d'Hervé, majordome de Montcuit.
+# Copiez ce fichier en config.yaml. Les valeurs ${VARIABLE} sont lues
+# dans l'environnement (fichier .env) : n'écrivez jamais de secret ici.
+
+maison: Montcuit
+fuseau_horaire: Europe/Paris
+dossier_donnees: ./data
+
+telegram:
+  token: ${TELEGRAM_TOKEN}
+  # Identifiants Telegram numériques des administrateurs (toujours autorisés).
+  # Pour connaître le vôtre : écrivez à Hervé, il vous l'indiquera.
+  administrateurs:
+    - 123456789
+
+# --- Électricité : compteur Linky via l'API Enedis (conso.boris.sh) --------
+# Les données Enedis arrivent le lendemain matin (J+1) : pas de temps réel.
+electricite:
+  source: enedis            # ou "demo"
+  prm: "00000000000000"     # numéro PRM à 14 chiffres (sur la facture ou le Linky)
+  token: ${ENEDIS_TOKEN}
+  prix_kwh: 0.2516          # €/kWh TTC (tarif Base)
+  seuil_journalier_kwh: 40  # prévenir si la veille a dépassé cette consommation
+
+# --- Alarme Ajax : la centrale envoie ses événements à Hervé (protocole SIA) -
+# Dans Ajax PRO : Hub > Paramètres > Centre de télésurveillance (CMS) > SIA DC-09
+alarme:
+  source: ajax_sia          # ou "demo"
+  port: 12128               # port TCP sur lequel Hervé écoute la centrale
+  compte: "AAA"             # numéro d'objet / compte SIA saisi dans Ajax
+  cle: ${SIA_CLE}           # clé de chiffrement (16, 24 ou 32 caractères), vivement conseillée
+  silence_max_min: 30       # alerte si la centrale ne donne plus signe de vie
+
+# --- Chauffage : thermostat Resideo / Honeywell Home T6 ---------------------
+chauffage:
+  source: resideo           # ou "demo"
+  cle_api: ${RESIDEO_CLE}
+  secret_api: ${RESIDEO_SECRET}
+  # Adresse de retour déclarée dans votre application developer.honeywellhome.com
+  url_retour: https://localhost/herve
+  # "TemporaryHold" : jusqu'au prochain créneau du programme ; "PermanentHold" : jusqu'à nouvel ordre
+  maintien: TemporaryHold
+
+surveillance:
+  intervalle_s: 300         # fréquence des vérifications du chauffage
+  temperature_hors_gel: 10  # alerte si une pièce descend sous cette valeur
+
+# Heure du compte rendu quotidien (vide pour désactiver).
+# Après 9 h, les chiffres Enedis de la veille sont en principe disponibles.
+rapport_quotidien: "09:30"

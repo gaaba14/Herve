@@ -1,0 +1,11 @@
+services:
+  herve:
+    build: .
+    container_name: herve
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - ./config.yaml:/app/config.yaml:ro
+      - ./data:/app/data
+    ports:
+      - "12128:12128"   # la centrale Ajax doit pouvoir joindre ce port
