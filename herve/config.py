@@ -100,8 +100,11 @@ def charger_dict(brut: dict) -> Config:
         except ValueError as e:
             raise ConfigError("rapport_quotidien doit être au format HH:MM") from e
 
+    admins_brut = tg.get("administrateurs") or []
+    if isinstance(admins_brut, (str, int)):  # ex. ${TELEGRAM_CHAT_IDS} = "123,456"
+        admins_brut = [a for a in str(admins_brut).split(",") if a.strip()]
     try:
-        admins = [int(a) for a in tg.get("administrateurs") or []]
+        admins = [int(a) for a in admins_brut]
     except (TypeError, ValueError) as e:
         raise ConfigError("telegram.administrateurs : identifiants numériques attendus") from e
 

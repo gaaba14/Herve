@@ -41,3 +41,9 @@ def test_config_complete_valide():
     })
     assert cfg.alarme.compte == "A1B2"
     assert cfg.chauffage.maintien == "TemporaryHold"
+
+
+def test_administrateurs_depuis_variable(monkeypatch):
+    monkeypatch.setenv("IDS", "11, 22")
+    cfg = charger_dict({"telegram": {"administrateurs": "${IDS}"}})
+    assert cfg.administrateurs == [11, 22]
