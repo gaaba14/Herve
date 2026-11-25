@@ -108,6 +108,37 @@ python -m venv .venv && .venv/bin/pip install -r requirements.txt
 set -a && . ./.env && set +a && .venv/bin/python -m herve config.yaml
 ```
 
+## Installation provisoire sur un Mac
+
+En attendant le VPS, Hervé peut tourner sur un Mac sans Docker, comme service macOS. Il démarre à l'ouverture de session et redémarre tout seul s'il s'arrête.
+
+```bash
+git clone -b claude/hopeful-maxwell-6a2qg3 https://github.com/gaaba14/Herve.git ~/Herve && cd ~/Herve
+```
+Créez `.env` et `config.yaml` comme indiqué plus haut, puis :
+```bash
+./deploiement/mac/installer.sh
+```
+```bash
+tail -f ~/Herve/data/herve.log
+```
+
+- **Mise en veille** : Hervé ne répond plus quand le Mac dort. Sur secteur, empêchez la veille avec `sudo pmset -c sleep 0`, ou dans *Réglages › Batterie/Économiseur d'énergie*.
+- **Telegram, Enedis et Resideo** fonctionnent derrière n'importe quelle box : Hervé ne fait que des connexions sortantes. Tailscale n'est pas nécessaire pour eux.
+- **Alarme Ajax** : c'est la centrale qui doit joindre Hervé. Elle ne peut pas rejoindre un réseau Tailscale.
+  - Si le Mac est **à Montcuit**, sur le même réseau que la centrale, indiquez dans Ajax PRO l'**adresse IP locale du Mac** et autorisez Python dans le pare-feu macOS.
+  - Sinon, gardez `alarme: {source: demo}` jusqu'au VPS.
+- **Arrêter** : `launchctl bootout gui/$(id -u)/fr.montcuit.herve`.
+
+### Passer du Mac au VPS
+1. Arrêtez Hervé sur le Mac avec la commande ci-dessus. Un même bot Telegram ne peut pas tourner à deux endroits à la fois.
+2. Copiez sur le VPS `.env`, `config.yaml` et le dossier `data/`. Il contient les personnes autorisées, le jeton Resideo et le journal de l'alarme, donc rien n'est à refaire :
+   ```bash
+   scp -r ~/Herve/.env ~/Herve/config.yaml ~/Herve/data utilisateur@vps:Herve/
+   ```
+3. Sur le VPS : `sudo chown -R 1000 data && docker compose up -d --build`.
+4. Dans Ajax PRO, remplacez l'adresse du Mac par l'IP publique du VPS.
+
 ## Développement
 ```bash
 .venv/bin/pip install -r requirements-dev.txt && .venv/bin/pytest
